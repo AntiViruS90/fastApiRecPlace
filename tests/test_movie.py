@@ -28,7 +28,6 @@ def generate_test_token():
     }
 
     token = jwt.encode(payload, secret_key, algorithm=algorithm)
-    print(token)
     return token
 
 

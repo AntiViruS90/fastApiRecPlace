@@ -9,6 +9,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from unittest.mock import AsyncMock, MagicMock
 from passlib.context import CryptContext
 
+import jwt
+from _datetime import datetime, timedelta
+from app.core.config import settings
+
+
+def generate_test_token():
+    secret_key = settings.JWT_SECRET_KEY
+    algorithm = settings.JWT_ALGORITHM
+    expire = datetime.utcnow() + timedelta(seconds=settings.JWT_EXPIRATION_TIME)
+
+    payload = {
+        "sub": "validuser",  # Вместо "id" используем "sub" для имени пользователя
+        "exp": expire
+    }
+
+    token = jwt.encode(payload, secret_key, algorithm=algorithm)
+    return token
+
+
 # Инициализация контекста для Passlib
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -23,17 +42,22 @@ def client():
 @pytest.fixture
 def mock_get_db(mocker):
     # Мокируем зависимость get_db, чтобы не использовать реальную базу данных
-    return mocker.patch("app.api.user.get_db", return_value=AsyncMock(spec=AsyncSession))
+    db = AsyncMock(spec=AsyncSession)
+    db_user = MagicMock()
+    db_user.id = 1
+    db_user.username = "validuser"
+    mocker.patch("app.db.crud.get_user_by_username", return_value=db_user)
+    return db
 
 
 @pytest.fixture
-def mock_oauth2_scheme(mocker):
-    # Мокируем зависимость oauth2_scheme для эндпойнта профиля
-    return mocker.patch("app.api.user.oauth2_scheme", return_value="mocked_token")
+def valid_token():
+    """Фикстура для генерации токена для авторизованных запросов"""
+    return generate_test_token()
 
 
 @pytest.mark.asyncio
-async def test_register_user(client, mock_get_db, mocker):
+async def test_register_user(client, mock_get_db, valid_token):
     # Тест на успешную регистрацию нового пользователя
     mock_get_db.return_value = AsyncMock()
     user_data = {
@@ -57,7 +81,7 @@ async def test_register_user(client, mock_get_db, mocker):
 
 
 @pytest.mark.asyncio
-async def test_register_user_existing_username(client, mock_get_db):
+async def test_register_user_existing_username(client, mock_get_db, valid_token):
     # Тест на попытку регистрации с уже существующим именем пользователя
     mock_get_db.return_value = AsyncMock()
     user_data = {
@@ -74,7 +98,7 @@ async def test_register_user_existing_username(client, mock_get_db):
 
 
 @pytest.mark.asyncio
-async def test_login_user(client, mock_get_db, mocker):
+async def test_login_user(client, mock_get_db, mocker, valid_token):
     # Тест на успешный вход
     user_data = {
         "username": "validuser",
@@ -98,7 +122,7 @@ async def test_login_user(client, mock_get_db, mocker):
 
 
 @pytest.mark.asyncio
-async def test_login_invalid_credentials(client, mock_get_db):
+async def test_login_invalid_credentials(client, mock_get_db, valid_token):
     # Тест на невалидные данные для входа
     user_data = {
         "username": "invaliduser",
@@ -114,12 +138,20 @@ async def test_login_invalid_credentials(client, mock_get_db):
 
 
 @pytest.mark.asyncio
-async def test_get_user_profile_invalid_token(client, mock_oauth2_scheme, mock_get_db, mocker):
-    # Тест на невалидный токен
-    mock_oauth2_scheme.return_value = "invalid_token"
-    mocker.patch("app.core.core_jwt.decode_access_token", side_effect=Exception)
+async def test_get_user_profile_valid_token(client, mock_get_db, valid_token):
+    # Тест с валидным токеном
+    response = client.get("/profile", headers={"Authorization": f"Bearer {valid_token}"})
 
-    response = client.get("/profile", headers={"Authorization": "Bearer invalid_token"})
+    assert response.status_code == 200
+    assert response.json() == {"id": 1, "username": "validuser"}  # Пример ответа
+
+
+@pytest.mark.asyncio
+async def test_get_user_profile_invalid_token(client, mock_get_db, valid_token):
+    # Тест на невалидный токен
+    invalid_token = "invalid_token"  # Просто подставим строку вместо сгенерированного токена
+
+    response = client.get("/profile", headers={"Authorization": f"Bearer {invalid_token}"})
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid token"}

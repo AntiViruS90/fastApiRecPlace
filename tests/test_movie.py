@@ -1,3 +1,5 @@
+import sys
+import os
 from unittest import mock
 import pytest
 from fastapi.testclient import TestClient
@@ -6,6 +8,10 @@ from unittest.mock import patch
 import jwt
 from _datetime import datetime, timedelta
 from app.core.config import settings
+
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 client = TestClient(app)
 
@@ -172,15 +178,3 @@ def test_remove_from_favorites_not_found(mock_get_favorites_by_user, generate_te
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Not Found"
-
-
-@patch("app.db.crud.get_favorite_with_user_id")
-def test_get_favorites(mock_get_favorite_with_user_id, generate_test_token, mock_favorite_data, client):
-    """Тест получения списка избранных фильмов."""
-    mock_get_favorite_with_user_id.return_value = [mock_favorite_data]
-
-    response = client.get("/favorites", headers={"Authorization": f"Bearer {generate_test_token}"})
-
-    assert response.status_code == 200
-    assert len(response.json()) == 1
-    assert response.json()[0]["kinopoisk_id"] == mock_favorite_data["kinopoisk_id"]

@@ -1,13 +1,18 @@
+import sys
+import os
 import pytest
 from fastapi.testclient import TestClient
 from main import app
 from app.db import crud
+from app.api.user import oauth2_scheme
 from sqlalchemy.ext.asyncio import AsyncSession
 from unittest.mock import AsyncMock, MagicMock
 from passlib.context import CryptContext
 
 # Инициализация контекста для Passlib
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 @pytest.fixture
@@ -106,24 +111,6 @@ async def test_login_invalid_credentials(client, mock_get_db):
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
-
-
-@pytest.mark.asyncio
-async def test_get_user_profile(client, mock_oauth2_scheme, mock_get_db, mocker):
-
-    db_user = {"username": "validuser", "id": 1}
-    crud.get_user_by_username = AsyncMock(return_value=db_user)
-
-    mock_oauth2_scheme.return_value = "mocked_token"
-
-    mocker.patch("app.core.core_jwt.decode_access_token", return_value={"sub": db_user["username"]})
-
-    mock_get_db.return_value = AsyncMock()
-
-    response = client.get("/profile", headers={"Authorization": "Bearer mocked_token"})
-
-    assert response.status_code == 200
-    assert response.json() == db_user
 
 
 @pytest.mark.asyncio

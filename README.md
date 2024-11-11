@@ -1,0 +1,1 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/794cc92d4ef6e39c5bf2/maintainability)](https://codeclimate.com/github/AntiViruS90/fastApiRecPlace/maintainability)

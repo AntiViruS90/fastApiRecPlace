@@ -1,0 +1,37 @@
+name: Run Tests and Report Coverage to Code Climate
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Run Tests with Coverage
+      run: |
+        pytest --cov=app --cov-report=xml
+
+    - name: Install Code Climate Reporter
+      run: |
+        curl -L https://github.com/codeclimate/test-reporter/releases/download/0.5.0/cc-test-reporter-0.5.0-linux-amd64 > cc-test-reporter
+        chmod +x cc-test-reporter
+        ./cc-test-reporter before-build
+        ./cc-test-reporter upload-coverage
+
+    - name: Upload coverage to Code Climate
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: ./cc-test-reporter after-build

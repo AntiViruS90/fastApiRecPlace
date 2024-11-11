@@ -10,7 +10,6 @@ docker-compose.yml
 Dockerfile
 test_main.http
 alembic/
-alembic.ini
 *.pyc
 *.swp
 .log

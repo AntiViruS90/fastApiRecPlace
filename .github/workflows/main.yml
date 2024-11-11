@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r requirements.txt
+
+      # Скачиваем и устанавливаем Code Climate Test Reporter
+      - name: Install Code Climate Test Reporter
+        run: |
+          curl -L https://github.com/codeclimate/test-reporter/releases/download/v1.0.0/test-reporter-1.0.0-linux-amd64 > /usr/local/bin/cc-test-reporter
+          chmod +x /usr/local/bin/cc-test-reporter
+
+      # Перед выполнением тестов уведомляем Code Climate о начале отчетности
+      - name: Notify Code Climate Test Reporter (before-build)
+        run: |
+          cc-test-reporter before-build
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      # Запускаем тесты
+      - name: Run tests
+        run: |
+          pytest --cov=my_project --cov-report=xml
+
+      # После выполнения тестов отправляем отчет в Code Climate
+      - name: Notify Code Climate Test Reporter (after-build)
+        run: |
+          cc-test-reporter after-build --coverage-input-type=coverage.xml
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}

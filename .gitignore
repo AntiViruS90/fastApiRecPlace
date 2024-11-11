@@ -9,7 +9,6 @@ tests/__pycache__/
 docker-compose.yml
 Dockerfile
 test_main.http
-alembic/
 *.pyc
 *.swp
 .log

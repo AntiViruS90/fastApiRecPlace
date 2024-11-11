@@ -20,6 +20,10 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-cov
 
+    - name: Set DATABASE_URL environment variable
+      run: |
+        echo "DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5433/postgres" >> $GITHUB_ENV
+
     - name: Run Tests with Coverage
       run: |
         pytest --cov=app --cov-report=xml

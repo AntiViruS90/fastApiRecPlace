@@ -45,6 +45,18 @@ jobs:
       run: |
         echo "DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5433/postgres" >> $GITHUB_ENV
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5433 -U postgres; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
+
+    - name: Apply database migrations
+      run: |
+        # Применяем миграции к базе данных
+        alembic upgrade head
+
     - name: Run Tests with Coverage
       run: |
         pytest --cov=app --cov-report=xml

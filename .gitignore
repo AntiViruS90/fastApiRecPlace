@@ -1,0 +1,16 @@
+.idea/
+.venv/
+__pycache__/
+app/api/__pycache__/
+app/core/__pycache__/
+app/db/__pycache__/
+app/.env
+tests/__pycache__/
+docker-compose.yml
+Dockerfile
+test_main.http
+alembic/
+alembic.ini
+*.pyc
+*.swp
+.log

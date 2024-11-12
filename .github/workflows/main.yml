@@ -57,20 +57,14 @@ jobs:
         # Применяем миграции к базе данных
         alembic upgrade head
 
-    - name: Run Tests with Coverage
+    - name: Run tests and collect coverage
       run: |
-          pytest --cov=app --cov-report=json:coverage/codeclimate.json
+        pytest --cov=app --cov-report=xml
 
-    - name: Install Code Climate Reporter
-      run: |
-          curl -L https://github.com/codeclimate/test-reporter/releases/download/v0.11.1/artifacts.tar.gz -o cc-test-reporter.tar.gz
-          tar -xvf cc-test-reporter.tar.gz
-          chmod +x ./artifacts/bin/test-reporter-0.11.1-linux-amd64
-          mv ./artifacts/bin/test-reporter-0.11.1-linux-amd64 cc-test-reporter
-          ./cc-test-reporter before-build
-          ./cc-test-reporter upload-coverage -r 33edb9145c6ac26e21cef1ff85848c9390d617934b968253b9438d8cfc99b85f -i .coverage/coverage.json --debug
-
-    - name: Upload coverage to Code Climate
+    - name: Upload coverage to CodeClimate
+      uses: paambaati/codeclimate-action@v4
+      with:
+        coverageCommand: 'pytest --cov=app --cov-report=xml'
+        debug: true
       env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      run: ./cc-test-reporter after-build
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}

@@ -68,7 +68,7 @@ jobs:
           chmod +x ./artifacts/bin/test-reporter-0.11.1-linux-amd64
           mv ./artifacts/bin/test-reporter-0.11.1-linux-amd64 cc-test-reporter
           ./cc-test-reporter before-build
-          ./cc-test-reporter upload-coverage
+          ./cc-test-reporter upload-coverage -r 33edb9145c6ac26e21cef1ff85848c9390d617934b968253b9438d8cfc99b85f
 
     - name: Upload coverage to Code Climate
       env:

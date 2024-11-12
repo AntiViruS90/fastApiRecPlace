@@ -63,11 +63,10 @@ jobs:
 
     - name: Install Code Climate Reporter
       run: |
-          curl -s https://api.github.com/repos/codeclimate/test-reporter/releases/latest \
-            | grep "browser_download_url" \
-            | cut -d '"' -f 4 \
-            | xargs curl -L -o cc-test-reporter
-          chmod +x cc-test-reporter
+          curl -L https://github.com/codeclimate/test-reporter/releases/download/latest/cc-test-reporter-linux-amd64 -o cc-test-reporter.tar.gz
+          tar -xvf cc-test-reporter.tar.gz
+          chmod +x ./artifacts/bin/test-reporter-0.11.1-linux-amd64
+          mv ./artifacts/bin/test-reporter-0.11.1-linux-amd64 cc-test-reporter
           ./cc-test-reporter before-build
           ./cc-test-reporter upload-coverage
 

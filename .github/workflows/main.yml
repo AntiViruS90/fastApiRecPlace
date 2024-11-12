@@ -8,9 +8,9 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14  # Используем официальный образ PostgreSQL
+        image: postgres:14
         ports:
-          - 5433:5432      # Пробрасываем порт 5433 на хост (хотя по умолчанию PostgreSQL использует порт 5432)
+          - 5433:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -68,7 +68,7 @@ jobs:
           chmod +x ./artifacts/bin/test-reporter-0.11.1-linux-amd64
           mv ./artifacts/bin/test-reporter-0.11.1-linux-amd64 cc-test-reporter
           ./cc-test-reporter before-build
-          ./cc-test-reporter upload-coverage -r 33edb9145c6ac26e21cef1ff85848c9390d617934b968253b9438d8cfc99b85f
+          ./cc-test-reporter upload-coverage -r 33edb9145c6ac26e21cef1ff85848c9390d617934b968253b9438d8cfc99b85f -i .coverage/coverage.json --debug
 
     - name: Upload coverage to Code Climate
       env:

@@ -59,16 +59,19 @@ jobs:
 
     - name: Run Tests with Coverage
       run: |
-        pytest --cov=app --cov-report=xml
+          pytest --cov=app --cov-report=xml
 
     - name: Install Code Climate Reporter
       run: |
-        curl -L https://github.com/codeclimate/test-reporter/releases/download/0.5.0/cc-test-reporter-0.5.0-linux-amd64 > cc-test-reporter
-        chmod +x cc-test-reporter
-        ./cc-test-reporter before-build
-        ./cc-test-reporter upload-coverage
+          curl -s https://api.github.com/repos/codeclimate/test-reporter/releases/latest \
+            | grep "browser_download_url" \
+            | cut -d '"' -f 4 \
+            | xargs curl -L -o cc-test-reporter
+          chmod +x cc-test-reporter
+          ./cc-test-reporter before-build
+          ./cc-test-reporter upload-coverage
 
     - name: Upload coverage to Code Climate
       env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: ./cc-test-reporter after-build

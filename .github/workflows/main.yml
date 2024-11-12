@@ -59,11 +59,11 @@ jobs:
 
     - name: Run Tests with Coverage
       run: |
-          pytest --cov=app --cov-report=xml
+          pytest --cov=app --cov-report=json:coverage/codeclimate.json
 
     - name: Install Code Climate Reporter
       run: |
-          curl -L https://github.com/codeclimate/test-reporter/releases/download/latest/cc-test-reporter-linux-amd64 -o cc-test-reporter.tar.gz
+          curl -L https://github.com/codeclimate/test-reporter/releases/download/v0.11.1/artifacts.tar.gz -o cc-test-reporter.tar.gz
           tar -xvf cc-test-reporter.tar.gz
           chmod +x ./artifacts/bin/test-reporter-0.11.1-linux-amd64
           mv ./artifacts/bin/test-reporter-0.11.1-linux-amd64 cc-test-reporter

@@ -1,4 +1,4 @@
-name: Run Tests and Report Coverage to Code Climate
+name: GitHub Actions
 
 on: [push]
 

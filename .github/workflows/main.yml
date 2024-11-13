@@ -40,12 +40,7 @@ jobs:
         echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> $GITHUB_ENV
         echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> $GITHUB_ENV
         echo "JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }}" >> $GITHUB_ENV
-        
-    - name: Set environment variables for Test Coverage
-      run: |
-        echo: "CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }}" >> $GITHUB_ENV
-      
-      
+
     - name: Set DATABASE_URL environment variable
       run: |
         echo "DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5433/postgres" >> $GITHUB_ENV

@@ -64,7 +64,7 @@ jobs:
     - name: Run Test and Upload Coverage
       run: |
         cc-test-reporter before-build
-        pytest --cov=app 
+        pytest --cov=app --cov-report=xml
         cc-test-reporter after-build --exit-code $?
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}

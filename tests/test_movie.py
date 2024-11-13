@@ -155,18 +155,6 @@ def test_get_movie_details_not_found(mock_get_kinopoisk_data, generate_test_toke
     assert response.json()["detail"] == "Film not found"
 
 
-# @patch("app.db.crud.get_favorites_by_user")
-# def test_add_to_favorites_already_exists(mock_get_favorites_by_user, generate_test_token, mock_favorite_data, client):
-#     """Тест, если фильм уже есть в избранном."""
-#     mock_get_favorites_by_user.return_value = mock_favorite_data
-#
-#     response = client.post("/movies/favorites", json=mock_favorite_data,
-#                            headers={"Authorization": f"Bearer {generate_test_token}"})
-#
-#     assert response.status_code == 400
-#     assert response.json()["detail"] == "Movie already in favorites"
-
-
 @patch("app.db.crud.get_favorites_by_user")
 def test_remove_from_favorites_not_found(mock_get_favorites_by_user, generate_test_token, mock_favorite_data, client):
     """Тест, если фильм не найден в избранном."""
